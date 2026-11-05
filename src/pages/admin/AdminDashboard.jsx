@@ -234,13 +234,14 @@ function AdminDashboard({ currentUser }) {
         : [...new Set(formData.assignedTo)];
 
     if (editingAssignment) {
-      // Edit mode
+      // Edit mode: pass fallbackSubmissions from the assignment held in state
       const updatedList = updateStoredAssignment(editingAssignment.id, {
         title: formData.title.trim(),
         description: formData.description.trim(),
         dueDate: formData.dueDate,
         driveLink: formData.driveLink.trim(),
         assignedTo: finalAssignedTo,
+        fallbackSubmissions: editingAssignment.submissions,
       });
 
       setAssignments(updatedList);

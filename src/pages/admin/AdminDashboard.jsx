@@ -223,18 +223,17 @@ function AdminDashboard({ currentUser }) {
   };
 
   // Save Assignment (Create or Edit)
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+const handleFormSubmit = (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
 
-    // Resolve assigned IDs strictly based on selected assignOption
+  try {
     const finalAssignedTo =
       formData.assignOption === "all"
         ? allStudents.map((s) => s.id)
         : [...new Set(formData.assignedTo)];
 
     if (editingAssignment) {
-      // Edit mode: pass fallbackSubmissions from the assignment held in state
       const updatedList = updateStoredAssignment(editingAssignment.id, {
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -250,7 +249,6 @@ function AdminDashboard({ currentUser }) {
         type: "success",
       });
     } else {
-      // Create mode
       const updatedList = createStoredAssignment({
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -268,22 +266,40 @@ function AdminDashboard({ currentUser }) {
     }
 
     handleCloseModal();
-  };
+  } catch (error) {
+    console.error("Assignment save failed:", error);
+    setToast({
+      message: error.message || "Unable to save assignment. Please try again.",
+      type: "error",
+    });
+  }
+};
 
   // ==========================================
   // DELETE HANDLERS
   // ==========================================
-  const handleConfirmDelete = () => {
-    if (!assignmentToDelete) return;
+const handleConfirmDelete = () => {
+  if (!assignmentToDelete) return;
 
+  try {
     const updatedList = deleteStoredAssignment(assignmentToDelete.id);
+
     setAssignments(updatedList);
     setAssignmentToDelete(null);
+
     setToast({
       message: "Assignment was deleted.",
       type: "success",
     });
-  };
+  } catch (error) {
+    console.error("Assignment deletion failed:", error);
+
+    setToast({
+      message: error.message || "Unable to delete assignment. Please try again.",
+      type: "error",
+    });
+  }
+};
 
   // Toggle expanded student list drawer
   const handleToggleExpand = (assignmentId) => {

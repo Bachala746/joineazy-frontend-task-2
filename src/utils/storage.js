@@ -34,8 +34,10 @@ export const saveStoredAssignments = (assignments) => {
       ASSIGNMENTS_STORAGE_KEY,
       JSON.stringify(assignments)
     );
+    return true;
   } catch (error) {
-    console.error("Error saving assignments to localStorage:", error);
+    console.error("Error saving assignments:", error);
+    throw new Error("Unable to save assignments. Please try again.");
   }
 };
 

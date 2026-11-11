@@ -237,13 +237,13 @@ Joineazy/
 ### Clone the Repository
 
 ```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
+git clone https://github.com/Bachala746/joineazy-frontend-task-2.git
 ```
 
 ### Navigate to the Project
 
 ```bash
-cd Joineazy
+cd joineazy-frontend-task-2
 ```
 
 ### Install Dependencies
@@ -303,9 +303,9 @@ The objective of Joineazy is to simplify academic assignment management through 
 
 ## 13. Project Links
 
-- **GitHub Repository:** To be added
-- **Live Application:** To be added
-- **Demo Video:** To be added
+- **GitHub Repository:** https://github.com/Bachala746/joineazy-frontend-task-2
+- **Live Application:** https://joineazy-frontend-task-1.vercel.app/
+- **Demo Video:** https://drive.google.com/file/d/12xPCR2xGzHssf1hzkoepE_vU3dC5T6Xu/view?usp=sharing
 
 ## 14. Internship Details
 

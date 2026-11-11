@@ -1,34 +1,38 @@
+
 import { INITIAL_ASSIGNMENTS } from "../data/initialAssignments";
 
 const ASSIGNMENTS_STORAGE_KEY = "joineazy_assignments";
 
-/**
- * Retrieves all assignments from localStorage.
- * If none exist, seeds localStorage with INITIAL_ASSIGNMENTS.
- */
+const isValidAssignments = (data) => Array.isArray(data);
+
 export const getStoredAssignments = () => {
   try {
     const data = localStorage.getItem(ASSIGNMENTS_STORAGE_KEY);
 
     if (!data) {
-      localStorage.setItem(
-        ASSIGNMENTS_STORAGE_KEY,
-        JSON.stringify(INITIAL_ASSIGNMENTS)
-      );
+      saveStoredAssignments(INITIAL_ASSIGNMENTS);
       return INITIAL_ASSIGNMENTS;
     }
 
-    return JSON.parse(data);
+    const parsedData = JSON.parse(data);
+
+    if (!isValidAssignments(parsedData)) {
+      saveStoredAssignments(INITIAL_ASSIGNMENTS);
+      return INITIAL_ASSIGNMENTS;
+    }
+
+    return parsedData;
   } catch (error) {
-    console.error("Error reading assignments from localStorage:", error);
+    console.error("Error reading assignments:", error);
     return INITIAL_ASSIGNMENTS;
   }
 };
 
-/**
- * Saves all assignments to localStorage.
- */
 export const saveStoredAssignments = (assignments) => {
+  if (!Array.isArray(assignments)) {
+    throw new Error("Assignments must be an array.");
+  }
+
   try {
     localStorage.setItem(
       ASSIGNMENTS_STORAGE_KEY,
@@ -41,53 +45,43 @@ export const saveStoredAssignments = (assignments) => {
   }
 };
 
-/**
- * Updates a student's submission status for an assignment.
- */
 export const updateStudentSubmission = (
   assignmentId,
   studentId,
   status = "Submitted"
 ) => {
-  const currentAssignments = getStoredAssignments();
+  const assignments = getStoredAssignments();
 
-  const updatedAssignments = currentAssignments.map((assignment) => {
+  const updatedAssignments = assignments.map((assignment) => {
     if (assignment.id !== assignmentId) return assignment;
 
-    // Verify student is actually assigned
     if (!assignment.assignedTo?.includes(studentId)) {
       return assignment;
     }
 
-    const existingSubmissions = Array.isArray(assignment.submissions)
+    const submissions = Array.isArray(assignment.submissions)
       ? assignment.submissions
       : [];
-    const submissionIndex = existingSubmissions.findIndex(
-      (sub) => sub.studentId === studentId
+
+    const existing = submissions.find(
+      (submission) => submission.studentId === studentId
     );
 
-    let updatedSubmissions;
-
-    if (submissionIndex !== -1) {
-      updatedSubmissions = existingSubmissions.map((sub, index) =>
-        index === submissionIndex
-          ? { ...sub, status, submittedAt: new Date().toISOString() }
-          : sub
-      );
-    } else {
-      updatedSubmissions = [
-        ...existingSubmissions,
-        {
-          studentId,
-          status,
-          submittedAt: new Date().toISOString(),
-        },
-      ];
-    }
+    const updatedSubmission = {
+      studentId,
+      status,
+      submittedAt: new Date().toISOString(),
+    };
 
     return {
       ...assignment,
-      submissions: updatedSubmissions,
+      submissions: existing
+        ? submissions.map((submission) =>
+            submission.studentId === studentId
+              ? updatedSubmission
+              : submission
+          )
+        : [...submissions, updatedSubmission],
     };
   });
 
@@ -95,97 +89,76 @@ export const updateStudentSubmission = (
   return updatedAssignments;
 };
 
-/**
- * Creates a new assignment.
- * Initializes all assigned students with 'Pending' status.
- */
 export const createStoredAssignment = (assignmentData) => {
-  const currentAssignments = getStoredAssignments();
-  const assignedTo = [...new Set(assignmentData.assignedTo || [])];
+  const assignments = getStoredAssignments();
 
-  const initialSubmissions = assignedTo.map((studentId) => ({
-    studentId,
-    status: "Pending",
-    submittedAt: null,
-  }));
+  const assignedTo = [
+    ...new Set(
+      Array.isArray(assignmentData.assignedTo)
+        ? assignmentData.assignedTo
+        : []
+    ),
+  ];
 
   const newAssignment = {
     ...assignmentData,
     id: `asg-${Date.now()}`,
     assignedTo,
-    submissions: initialSubmissions,
+    submissions: assignedTo.map((studentId) => ({
+      studentId,
+      status: "Pending",
+      submittedAt: null,
+    })),
     createdAt: new Date().toISOString(),
   };
 
-  const updatedAssignments = [newAssignment, ...currentAssignments];
+  const updatedAssignments = [newAssignment, ...assignments];
 
   saveStoredAssignments(updatedAssignments);
   return updatedAssignments;
 };
 
-/**
- * Updates an existing assignment.
- *
- * Rules:
- * 1. Students who remain assigned retain their existing status and submittedAt timestamp.
- * 2. Newly assigned students receive { studentId, status: "Pending", submittedAt: null }.
- * 3. Students who are removed have their submission records removed.
- * 4. LocalStorage submissions are the primary source of truth.
- *    fallbackSubmissions is used ONLY when LocalStorage submissions are missing, invalid, or empty.
- * 5. Does not use fallback records to restore students who are newly assigned after being removed.
- * 6. Preserves all other assignment properties (ID, createdBy, createdAt, etc.).
- * 7. Deduplicates assigned student IDs and does not store fallbackSubmissions permanently.
- */
 export const updateStoredAssignment = (assignmentId, updates) => {
-  const currentAssignments = getStoredAssignments();
-
-  // Strip fallbackSubmissions so it is never permanently saved in localStorage
+  const assignments = getStoredAssignments();
   const { fallbackSubmissions, ...assignmentUpdates } = updates;
 
-  const updatedAssignments = currentAssignments.map((assignment) => {
+  const updatedAssignments = assignments.map((assignment) => {
     if (assignment.id !== assignmentId) return assignment;
 
-    // 1. Deduplicate assigned IDs
     const assignedTo = [
-      ...new Set(assignmentUpdates.assignedTo ?? assignment.assignedTo ?? []),
+      ...new Set(
+        Array.isArray(assignmentUpdates.assignedTo)
+          ? assignmentUpdates.assignedTo
+          : assignment.assignedTo || []
+      ),
     ];
 
-    // 2. Determine source of existing submissions:
-    // Primary: LocalStorage assignment record
-    // Fallback: only if LocalStorage submissions are missing, invalid, or empty
-    const hasValidStorageSubmissions =
-      Array.isArray(assignment.submissions) && assignment.submissions.length > 0;
+    const previousSubmissions =
+      Array.isArray(assignment.submissions) &&
+      assignment.submissions.length > 0
+        ? assignment.submissions
+        : Array.isArray(fallbackSubmissions)
+          ? fallbackSubmissions
+          : [];
 
-    const previousSubmissions = hasValidStorageSubmissions
-      ? assignment.submissions
-      : Array.isArray(fallbackSubmissions)
-      ? fallbackSubmissions
-      : [];
-
-    // 3. Build updated submissions strictly for currently assigned students
     const submissions = assignedTo.map((studentId) => {
       const existing = previousSubmissions.find(
-        (sub) => sub.studentId === studentId
+        (submission) => submission.studentId === studentId
       );
 
-      if (existing) {
-        // Retain existing status and submittedAt
-        return {
-          studentId,
-          status: existing.status || "Pending",
-          submittedAt: existing.submittedAt || null,
-        };
-      }
-
-      // Newly assigned student starts as Pending
-      return {
-        studentId,
-        status: "Pending",
-        submittedAt: null,
-      };
+      return existing
+        ? {
+            studentId,
+            status: existing.status || "Pending",
+            submittedAt: existing.submittedAt || null,
+          }
+        : {
+            studentId,
+            status: "Pending",
+            submittedAt: null,
+          };
     });
 
-    // 4. Preserve immutable identifiers and metadata
     return {
       ...assignment,
       ...assignmentUpdates,
@@ -201,13 +174,10 @@ export const updateStoredAssignment = (assignmentId, updates) => {
   return updatedAssignments;
 };
 
-/**
- * Deletes an assignment by ID.
- */
 export const deleteStoredAssignment = (assignmentId) => {
-  const currentAssignments = getStoredAssignments();
+  const assignments = getStoredAssignments();
 
-  const updatedAssignments = currentAssignments.filter(
+  const updatedAssignments = assignments.filter(
     (assignment) => assignment.id !== assignmentId
   );
 
@@ -215,14 +185,7 @@ export const deleteStoredAssignment = (assignmentId) => {
   return updatedAssignments;
 };
 
-/**
- * Resets assignments to initial mock data.
- */
 export const resetToInitialAssignments = () => {
-  localStorage.setItem(
-    ASSIGNMENTS_STORAGE_KEY,
-    JSON.stringify(INITIAL_ASSIGNMENTS)
-  );
-
+  saveStoredAssignments(INITIAL_ASSIGNMENTS);
   return INITIAL_ASSIGNMENTS;
 };

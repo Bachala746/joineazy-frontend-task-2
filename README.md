@@ -1,66 +1,157 @@
 # Joineazy – Assignment & Review Dashboard
 
-A responsive web application designed to simplify assignment management and student submission tracking. The platform provides separate dashboards for professors and students, making it easier to distribute assignments, manage coursework, and monitor submission progress.
+A course-based assignment management platform that connects professors and students through a centralized dashboard. Joineazy helps professors distribute assignments, monitor student progress, and manage group submissions while allowing students to access coursework and acknowledge completed assignments.
 
-## 📌 Project Overview
+**Developed as part of the Joineazy Frontend Internship – Task 1 and Task 2.**
 
-The Joineazy Assignment & Review Dashboard is developed as part of the Joineazy Frontend Internship Assignment – Task 1.
+---
 
-The application provides two roles:
+## 1. Project Overview
 
-- **Professor (Admin):** Create, manage, distribute, and monitor assignments.
-- **Student:** View assigned assignments, access learning materials, and track submission status.
+Managing academic assignments involves distributing tasks, tracking deadlines, monitoring submissions, and coordinating group activities. Joineazy brings these activities together in one platform.
 
-The application uses mock authentication and browser LocalStorage for data persistence. No backend server is required.
+The application provides two role-based portals:
 
-## ✨ Features
+- **Professor Portal:** Manage course assignments, assign students, monitor submissions, and track class progress.
+- **Student Portal:** Access enrolled courses, view assignments, manage groups, and acknowledge submissions.
 
-### 👨‍🏫 Professor Dashboard
+Joineazy is a frontend application built with React.js. It uses simulated authentication and browser LocalStorage for data persistence.
 
-- Create new assignments with a title, description, due date, and Google Drive link.
-- Edit existing assignments.
-- Delete assignments with confirmation.
-- Assign work to all students or select specific students.
-- View the list of students assigned to each assignment.
-- Track individual student submission statuses.
-- Monitor overall class submission progress.
-- Search assignments by title or description.
-- View only assignments created by the logged-in professor.
+## 2. Project Evolution – Task 1 and Task 2
 
-### 🎓 Student Dashboard
+### Task 1 – Assignment & Review Dashboard
 
-- View assignments assigned specifically to the logged-in student.
-- Read assignment descriptions and due dates.
-- Access Google Drive learning materials.
-- Submit assignments through a two-step confirmation process.
-- View submitted and pending assignment statuses.
-- Track overall submission progress.
-- Search, filter, and sort assignments.
-- Retain submission information after refreshing the browser.
+The initial version focused on basic assignment management.
 
-### 🔐 General Features
+- Professor and student dashboards.
+- Create, edit, and delete assignments.
+- Assign tasks to students.
+- View assignment deadlines.
+- Individual submission acknowledgment.
+- Track submitted and pending assignments.
+- Search and filter assignments.
 
-- Mock login with predefined professor and student accounts.
-- Separate dashboards based on user roles.
-- Student-specific assignment visibility.
-- Professor-specific assignment management.
-- LocalStorage-based data persistence.
-- Responsive user interface.
-- Toast notifications and confirmation dialogs.
+### Task 2 – Course-Based Assignment Management
 
-## 🛠️ Technologies Used
+The second version extends the application with course-specific workflows and group collaboration.
+
+- Student and professor registration and login.
+- Role-based dashboards and protected application access.
+- Course-based assignment management.
+- Individual and group submission types.
+- Group creation and joining.
+- Group leader and member management.
+- Leader-only acknowledgment for group assignments.
+- Submission timestamps and acknowledgment details.
+- Overdue assignment identification.
+- Detailed submission tracking for professors.
+- Persistent data after browser refresh.
+
+## 3. Application Workflow
+
+```mermaid
+flowchart TD
+    A[Open Joineazy] --> B[Login or Register]
+    B --> C{User Role}
+    C -->|Professor| D[Professor Dashboard]
+    C -->|Student| E[Student Dashboard]
+    D --> F[Select Course]
+    F --> G[Create or Manage Assignments]
+    G --> H[Assign Students]
+    H --> I[Track Submissions]
+    E --> J[View Enrolled Courses]
+    J --> K[Open Course Assignments]
+    K --> L{Submission Type}
+    L -->|Individual| M[Student Acknowledges]
+    L -->|Group| N[Create or Join Group]
+    N --> O[Group Leader Acknowledges]
+    M --> P[Update Submission Status]
+    O --> P
+    P --> I
+```
+
+## 4. Features
+
+### Professor Portal
+
+- View courses assigned to the professor.
+- Open a course to manage its assignments.
+- Create assignments with title, description, deadline, and OneDrive link.
+- Select Individual or Group submission.
+- Assign work to selected students.
+- Edit and delete assignments.
+- Search and filter assignments.
+- View submission progress and completion percentages.
+- View detailed submitted and pending lists.
+- Monitor individual students and groups.
+
+### Student Portal
+
+- View enrolled courses.
+- Access course-specific assignments.
+- View descriptions, deadlines, and resource links.
+- Acknowledge individual assignments.
+- View acknowledgment status and timestamps.
+- Identify overdue assignments.
+- Search and filter assignments.
+- See an empty state when no courses are assigned.
+
+### Group Management
+
+- Create a group within a course.
+- Group creator automatically becomes the leader.
+- Join an existing group.
+- View group leaders and members.
+- Only the group leader can acknowledge a group assignment.
+- All group members can view the acknowledgment details.
+- Students without a group receive a prompt to create or join one.
+
+### Submission Tracking
+
+- Track individual and group submissions.
+- Display submitted and pending counts.
+- Show progress bars and completion percentages.
+- Display acknowledgment timestamps.
+- Identify overdue assignments.
+- Preserve submission records after refreshing the browser.
+
+### User Experience
+
+- Responsive desktop, tablet, and mobile layouts.
+- Role-specific dashboards.
+- Form validation and error messages.
+- Toast notifications.
+- Confirmation dialogs.
+- Loading and empty states.
+- Status indicators and progress bars.
+
+## 5. Technology Stack
+
 
 | Technology | Purpose |
 |---|---|
 | React.js | Frontend development |
 | Vite | Development server and build tool |
 | JavaScript | Application logic |
-| HTML5 | Application structure |
-| CSS3 | Styling and responsive design |
-| Browser LocalStorage | Data persistence |
-| Git & GitHub | Version control and source code management |
+| Tailwind CSS | Utility-based styling |
+| CSS3 | Additional component styling |
+| React Router DOM | Navigation |
+| React Context API | Shared state management |
+| LocalStorage | Browser-based data persistence |
+| Simulated JWT | Frontend authentication |
+| Git and GitHub | Version control |
 
-## 📂 Project Structure
+## 6. Project Architecture
+
+The application follows a component-based React architecture.
+
+- **Components:** Reusable assignment, course, group, and common UI components.
+- **Pages:** Separate professor, student, authentication, and course pages.
+- **Context:** Centralized authentication and application state.
+- **Data:** Initial users, courses, groups, and assignments.
+- **Utilities:** LocalStorage initialization and data management.
+
+## 7. Project Structure
 
 ```text
 Joineazy/
@@ -71,40 +162,71 @@ Joineazy/
 │   ├── assets/
 │   │
 │   ├── components/
+│   │   ├── assignments/
+│   │   │   ├── AssignmentCard.jsx
+│   │   │   ├── AssignmentModal.jsx
+│   │   │   └── DrillDownModal.jsx
+│   │   │
+│   │   ├── common/
+│   │   │   ├── Icons.jsx
+│   │   │   ├── ProgressBar.jsx
+│   │   │   └── Toast.jsx
+│   │   │
+│   │   ├── courses/
+│   │   │   └── CourseCard.jsx
+│   │   │
+│   │   ├── groups/
+│   │   │   └── GroupManagerModal.jsx
+│   │   │
+│   │   ├── AssignmentCard.css
 │   │   ├── AssignmentCard.jsx
+│   │   ├── Navbar.jsx
+│   │   ├── StatsOverview.css
 │   │   ├── StatsOverview.jsx
+│   │   ├── SubmitModal.css
 │   │   ├── SubmitModal.jsx
+│   │   ├── Toast.css
 │   │   └── Toast.jsx
+│   │
+│   ├── context/
+│   │   ├── AppContext.jsx
+│   │   └── AuthContext.jsx
 │   │
 │   ├── data/
 │   │   ├── initialAssignments.js
+│   │   ├── initialData.js
 │   │   └── mockUsers.js
 │   │
 │   ├── pages/
 │   │   ├── admin/
-│   │   │   ├── AdminDashboard.jsx
-│   │   │   └── AdminDashboard.css
+│   │   │   ├── AdminDashboard.css
+│   │   │   └── AdminDashboard.jsx
 │   │   │
-│   │   └── student/
-│   │       ├── StudentDashboard.jsx
-│   │       └── StudentDashboard.css
+│   │   ├── student/
+│   │   │   ├── StudentDashboard.css
+│   │   │   └── StudentDashboard.jsx
+│   │   │
+│   │   ├── AuthPage.jsx
+│   │   ├── CourseAssignmentsPage.jsx
+│   │   └── CoursesDashboard.jsx
 │   │
 │   ├── utils/
+│   │   ├── initStorage.js
 │   │   └── storage.js
 │   │
 │   ├── App.jsx
 │   ├── App.css
+│   ├── index.css
 │   └── main.jsx
 │
 ├── index.html
 ├── package.json
 ├── package-lock.json
+├── vite.config.js
 └── README.md
 ```
 
-## 🚀 Getting Started
-
-Follow these steps to run the project locally.
+## 8. Getting Started
 
 ### Prerequisites
 
@@ -112,90 +234,83 @@ Follow these steps to run the project locally.
 - npm
 - Git
 
-### 1. Clone the Repository
+### Clone the Repository
 
 ```bash
 git clone YOUR_GITHUB_REPOSITORY_URL
 ```
 
-### 2. Navigate to the Project Directory
+### Navigate to the Project
 
 ```bash
 cd Joineazy
 ```
 
-### 3. Install Dependencies
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 4. Start the Development Server
+### Start the Development Server
 
 ```bash
 npm run dev
 ```
 
-Open the local URL displayed in your terminal to access the application.
+Open the local URL displayed in the terminal.
 
-### 5. Create a Production Build
+### Create a Production Build
 
 ```bash
 npm run build
 ```
 
-## 👥 Demo Accounts
+## 9. Demo Login
 
-The application includes predefined mock accounts for demonstration.
+Joineazy provides demo login options for testing both user roles.
 
-**Professor Accounts**
 
-| Name | Email |
+| Role | Demo Email |
 |---|---|
-| Prof. Alan Turing | alan.turing@joineazy.edu |
-| Prof. Ada Lovelace | ada.lovelace@joineazy.edu |
+| Professor | professor@joineazy.com |
+| Student | student@joineazy.com |
 
-**Student Accounts**
 
-| Name | Email |
-|---|---|
-| Alice Johnson | alice@student.joineazy.edu |
-| Bob Smith | bob@student.joineazy.edu |
-| Charlie Brown | charlie@student.joineazy.edu |
-| Diana Prince | diana@student.joineazy.edu |
-| Evan Wright | evan@student.joineazy.edu |
+Use the **Professor Demo** or **Student Demo** option on the login page to access the respective dashboards.
 
-No password or real authentication is required. Select a demo profile to access its dashboard.
+Users can also register through the application.
 
-## 💾 Data Persistence
+## 10. Data Persistence and Limitations
 
-The application uses browser LocalStorage to store assignment information and student submission records.
+Joineazy uses browser LocalStorage to maintain application data.
 
-- Assignment data remains available after refreshing the browser.
-- Student submission statuses are saved locally.
-- Each student sees only their assigned assignments.
-- Each professor manages only the assignments they created.
+- Authentication session information is stored locally.
+- Course and assignment information is persisted.
+- Group information is stored locally.
+- Submission statuses and timestamps are retained.
+- Changes remain available after refreshing the browser.
 
-**Note:** Data is stored locally in the browser and is not synchronized across different devices or browsers.
+**Important:** Authentication is simulated for demonstration purposes. There is no backend server or production-grade authentication. LocalStorage data is browser-specific and is not synchronized across different devices.
 
-## 📱 Responsive Design
+## 11. Responsive Design
 
-The dashboard is designed to provide a consistent experience across desktop, tablet, and mobile screen sizes.
+The application supports desktop, tablet, and mobile screen sizes. Its responsive layouts help professors and students access the platform across different devices.
 
-## 🎯 Project Objective
+## 12. Project Objective
 
-The main objective is to develop a simple and user-friendly assignment management platform that helps professors distribute coursework and monitor student progress while allowing students to manage their assignments and track submissions efficiently.
+The objective of Joineazy is to simplify academic assignment management through a centralized platform. By combining course-based assignment distribution, group collaboration, submission acknowledgment, and progress tracking, the application provides a structured workflow for professors and students.
 
-## 🔗 Project Links
+## 13. Project Links
 
 - **GitHub Repository:** To be added
 - **Live Application:** To be added
 - **Demo Video:** To be added
 
-## 👩‍💻 Internship Assignment
+## 14. Internship Details
 
-**Company:** Joineazy  
-**Role:** Frontend Intern  
-**Task:** Task 1 – Assignment & Review Dashboard  
-**Technology:** React.js
-
+- **Company:** Joineazy
+- **Role:** Frontend Intern
+- **Task 1:** Assignment & Review Dashboard
+- **Task 2:** Course-Based Assignment Management and Group Collaboration
+- **Frontend:** React.js, Vite, JavaScript, Tailwind CSS
